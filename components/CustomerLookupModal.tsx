@@ -258,6 +258,11 @@ export default function CustomerLookupModal({ isOpen, onClose, onSelect }: Custo
   const [searchText, setSearchText] = useState('');
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   
+  // Quick filter states
+  const [showHighPriorityOnly, setShowHighPriorityOnly] = useState(false);
+  const [showRecentVisits, setShowRecentVisits] = useState(false);
+  const [showMyTerritory, setShowMyTerritory] = useState(false);
+  
   // Advanced filter states
   const [filterName, setFilterName] = useState('');
   const [filterCity, setFilterCity] = useState('');
@@ -270,6 +275,19 @@ export default function CustomerLookupModal({ isOpen, onClose, onSelect }: Custo
 
   const filteredCustomers = useMemo(() => {
     let results = SAMPLE_CUSTOMERS;
+
+    // Quick filters
+    if (showHighPriorityOnly) {
+      results = results.filter(c => c.priority === 'High');
+    }
+    if (showRecentVisits) {
+      // Simulate recent visits - in real app would check lastVisitDate
+      results = results.filter(c => c.overdue || c.priority === 'High');
+    }
+    if (showMyTerritory) {
+      // Simulate user's territory - in real app would check user's assigned territory
+      results = results.filter(c => c.state === 'CA' || c.state === 'TX');
+    }
 
     // Basic search
     if (searchText.trim()) {
@@ -309,7 +327,7 @@ export default function CustomerLookupModal({ isOpen, onClose, onSelect }: Custo
     }
 
     return results;
-  }, [searchText, filterName, filterCity, filterState, filterZip, filterPriority, filterClassOfTrade, filterSubstituted, filterOverdue]);
+  }, [searchText, filterName, filterCity, filterState, filterZip, filterPriority, filterClassOfTrade, filterSubstituted, filterOverdue, showHighPriorityOnly, showRecentVisits, showMyTerritory]);
 
   const resetFilters = () => {
     setSearchText('');
@@ -356,6 +374,28 @@ export default function CustomerLookupModal({ isOpen, onClose, onSelect }: Custo
             onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
           >
             {showAdvancedFilter ? '− Filters' : '+ Filters'}
+          </button>
+        </div>
+
+        {/* Quick Filters */}
+        <div className="quick-filters">
+          <button
+            className={`quick-filter-btn ${showHighPriorityOnly ? 'active' : ''}`}
+            onClick={() => setShowHighPriorityOnly(!showHighPriorityOnly)}
+          >
+            ⭐ High Priority
+          </button>
+          <button
+            className={`quick-filter-btn ${showRecentVisits ? 'active' : ''}`}
+            onClick={() => setShowRecentVisits(!showRecentVisits)}
+          >
+            📅 Recent Visits
+          </button>
+          <button
+            className={`quick-filter-btn ${showMyTerritory ? 'active' : ''}`}
+            onClick={() => setShowMyTerritory(!showMyTerritory)}
+          >
+            🗺️ My Territory
           </button>
         </div>
 
